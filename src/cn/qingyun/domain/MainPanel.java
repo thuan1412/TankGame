@@ -7,6 +7,11 @@ import java.awt.Image;
 import java.awt.Panel;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -14,64 +19,64 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-/**
- * Ö÷Ãæ°å
- * @author ÕÅÁ¢Ôö
- *
- */
-public class MainPanel extends JPanel implements KeyListener,Runnable{
+import client.Client;
 
-	//´´½¨Ò»¸öÌ¹¿ËÊµÌå
+public class MainPanel extends JPanel implements KeyListener,Runnable{
 	RoleTank roleTank = null;
 	
-	//±ê¼ÇÔİÍ£ºÍ¼ÌĞø
 	int flag = 1;
-	//¼ÇÂ¼Íæ¼ÒËÀÍö´ÎÊı
 	int roleTankOver = 0;
-	//¼ÇÂ¼µĞÈËÌ¹¿ËËÀÍö´ÎÊı
 	int enemyTankOver = 0;
 	
-	//´´½¨±£´æµĞÈËÌ¹¿ËµÄ¼¯ºÏ
 	Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
 	
-	//¶¨ÒåµĞÈËÌ¹¿ËµÄÊıÁ¿
 	int enemyTankNum = 3;
 	
-	//¶¨ÒåÈıÕÅÍ¼Æ¬
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼Æ¬
 	Image image1 = null;
 	Image image2 = null;
 	Image image3 = null;
 	
-	//¶¨Òå±£´æ±¬Õ¨ÀàµÄ¼¯ºÏ
-	Vector<Bobm> bobms = new Vector<Bobm>();
+	Socket connection = null;
+	DataOutputStream outToServer = null;
+	BufferedReader inFromServer = null;
 	
-	public  MainPanel(){
-		//³õÊ¼»¯Ì¹¿Ë 
+	//ï¿½ï¿½ï¿½å±£ï¿½æ±¬Õ¨ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½
+	Vector<Bobm> bobms = new Vector<Bobm>();
+	Client client = null;
+	public  MainPanel(Client client){
 		roleTank = new RoleTank(200,270);    
-		
-		//³õÊ¼»¯µĞÈËÌ¹¿Ë
+//		Client client = new Client("127.0.0.1", 4321);
+		this.client = client;
+		try {
+			System.out.println("Out to server");
+			client.outToServer.writeBytes("mew mew mew" + '\n');
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½
 		for(int i = 0;i < enemyTankNum;i++){
 			EnemyTank enemyTank = new EnemyTank((i+1)*50,0);
-			//´´½¨µÄÌ¹¿ËÌí¼Óµ½Ì¹¿ËÃæ°åÖĞ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½Óµï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			enemyTank.setEnemyTanks(enemyTanks);
 			
 			enemyTank.setColor(0);
 			enemyTank.setDirect(1);
-			//Æô¶¯µĞÈËÌ¹¿ËÏß³Ì
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ß³ï¿½
 			Thread thread = new Thread(enemyTank);
 			thread.start();
-			//Ìí¼ÓµĞÈËÌ¹¿ËµÄ×Óµ¯
+			//ï¿½ï¿½Óµï¿½ï¿½ï¿½Ì¹ï¿½Ëµï¿½ï¿½Óµï¿½
 			Shot shot = new Shot(enemyTank.getX()+10,enemyTank.getY()+30,enemyTank.direct);
-			//×Óµ¯Ìí¼Óµ½×Óµ¯¼¯ºÏÖĞ
+			//ï¿½Óµï¿½ï¿½ï¿½Óµï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			enemyTank.shots.add(shot);
-			//Æô¶¯µĞÈË×Óµ¯Ïß³Ì
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ß³ï¿½
 			Thread threadShot = new Thread(shot);
 			threadShot.start();
 			
 			enemyTanks.add(enemyTank);
 		}
 		
-		//³õÊ¼»¯±¬Õ¨Í¼Æ¬
+		//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Õ¨Í¼Æ¬
 //		try {
 //			image1 = ImageIO.read(new File("bomb_1.gif"));
 //			image2 = ImageIO.read(new File("bomb_2.gif"));
@@ -91,45 +96,44 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 	}
 	
 	
-	//ÖØĞ´»æ»­·½·¨
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
 		
-		//ÉèÖÃ±³¾°Ìî³äÑÕÉ«
+		//ï¿½ï¿½ï¿½Ã±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
 		g.fillRect(0, 0, 400, 300);
 		
-		//»­³öÌ¹¿ËµÄ·½·¨
+		//ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ËµÄ·ï¿½ï¿½ï¿½
 		if(roleTank.isLive){
 			drawTank(roleTank.getX(),roleTank.getY(),g,roleTank.getDirect(),1);
 		}
 		
-		//»­³öÓÎÏ·ĞÅÏ¢
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½Ï¢
 		drawTank(60, 320, g, 0, 0);
 		drawTank(430, 60, g, 0, 0);
 		drawTank(130, 320, g, 0, 1);
 		g.setColor(Color.black);
-		Font font = new Font("ËÎÌå",Font.BOLD,30);
+		Font font = new Font("ï¿½ï¿½ï¿½ï¿½",Font.BOLD,30);
 		g.drawString(Message.enemyTankNums+"", 90, 340);
 		g.drawString(Message.roleTankNums+"", 160, 340);
-		Font font2 = new Font("ËÎÌå",Font.BOLD,26);
+		Font font2 = new Font("ï¿½ï¿½ï¿½ï¿½",Font.BOLD,26);
 		g.setFont(font2);
-	    g.drawString("»÷ÖĞ²ËÄñÊı£º", 430, 30);
+	    g.drawString("ï¿½ï¿½ï¿½Ğ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", 430, 30);
 	    g.drawString(Message.hitTankNums+"", 460, 85);
 		
-		//»­³öµĞÈËÌ¹¿Ë
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½
 		for(int i = 0;i < enemyTanks.size();i++){
 			EnemyTank enemyTank = enemyTanks.get(i);
 			if(enemyTank.isLive){
-				//»­³öµĞÈËÌ¹¿Ë
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½
 				drawTank(enemyTank.getX(), enemyTank.getY(), g, enemyTank.getDirect(), 0);
-				//»­³öµĞÈË×Óµ¯
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½
 				for(int j = 0;j < enemyTank.shots.size();j++){
 					Shot shot = enemyTank.shots.get(j);
 					if(shot.isLive){
 						g.draw3DRect(shot.getX(),shot.getY(), 2, 2, false);
 					}else{
-						//ÒÆ³ıËÀÍöµÄµĞÈË×Óµ¯
+						//ï¿½Æ³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½Óµï¿½
 						enemyTank.shots.remove(shot);
 					}
 					
@@ -137,7 +141,7 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 			}
 		}
 		
-		//»­³ö×Óµ¯¼¯ºÏ
+		//ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½
 		for(int i = 0;i <this.roleTank.shots.size();i++){
 			Shot myShot = this.roleTank.shots.get(i);
 			if(myShot != null && myShot.isLive == true){
@@ -145,14 +149,14 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 				g.draw3DRect(myShot.getX(),myShot.getY(), 2, 2, false);
 			}
 			
-			//ÒÆ³ı³ö½ç²»´æ»îµÄ×Óµ¯
+			//ï¿½Æ³ï¿½ï¿½ï¿½ï¿½ç²»ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½
 			if(myShot.isLive == false){
 				this.roleTank.shots.remove(myShot);
 			}
 		}
 		
 
-		//»­³ö±¬Õ¨Ğ§¹û
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¨Ğ§ï¿½ï¿½
 		for(int i = 0;i < bobms.size();i++){
 			Bobm bobm = bobms.get(i);
 			   if(bobm.isLive){
@@ -164,7 +168,7 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 						g.drawImage(image3, bobm.getX(),bobm.getY(), 30, 30, this);
 					}
 			   }
-				//ÉúÃüÖµ¼õ1
+				//ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½1
 				bobm.bobmDown();
 				
 				if(bobm.isLive == false){
@@ -175,91 +179,91 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 		
 	}
 
-	//ÅĞ¶Ï×Óµ¯ÊÇ·ñ»÷ÖĞµĞÈËÌ¹¿ËµÄ·½·¨
+	//ï¿½Ğ¶ï¿½ï¿½Óµï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½Ì¹ï¿½ËµÄ·ï¿½ï¿½ï¿½
 	private void hitTank(Shot shot,EnemyTank enemyTank){
 		switch (enemyTank.direct) {
 		case 0:
 		case 1:
-			  //ÅĞ¶ÏÊÇ·ñ»÷ÖĞ(ÉÏÏÂ·½Ïò)
+			  //ï¿½Ğ¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½)
 			  if(shot.getX() > enemyTank.getX() && shot.getX() < enemyTank.getX()+20 && shot.getY() > enemyTank.getY() && shot.getY() < enemyTank.getY()+30){
-				  //×Óµ¯ËÀÍö
+				  //ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½
 				  shot.isLive = false;
-				  //µĞÈËÌ¹¿ËËÀÍö
+				  //ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				  enemyTank.isLive = false;
-				  //µĞÈËÌ¹¿ËÊıÁ¿¼õ1
+				  //ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1
 				  Message.downEnemyTankNums();
-				  //Íæ¼Ò´òËÀµÄÌ¹¿ËÊı¼Ó1
+				  //ï¿½ï¿½Ò´ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1
 				  Message.addHitTankNumus();
-				  //´´½¨Ò»¸ö±¬Õ¨Àà
+				  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½
 				  Bobm bobm = new Bobm(enemyTank.getX(),enemyTank.getY());
-				  //Ìí¼Óµ½±¬Õ¨¼¯ºÏÖĞ
+				  //ï¿½ï¿½Óµï¿½ï¿½ï¿½Õ¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				  bobms.add(bobm);
 				  
 				  enemyTankOver++;
 				  if(enemyTankOver < 18){
 					  EnemyTank newEnemyTank = new EnemyTank(280,0);
-						//´´½¨µÄÌ¹¿ËÌí¼Óµ½Ì¹¿ËÃæ°åÖĞ
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½Óµï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					  newEnemyTank.setEnemyTanks(enemyTanks);
 						
 					  newEnemyTank.setColor(0);
 					  newEnemyTank.setDirect(1);
-						//Æô¶¯µĞÈËÌ¹¿ËÏß³Ì
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ß³ï¿½
 						Thread thread = new Thread(newEnemyTank);
 						thread.start();
-						//Ìí¼ÓµĞÈËÌ¹¿ËµÄ×Óµ¯
+						//ï¿½ï¿½Óµï¿½ï¿½ï¿½Ì¹ï¿½Ëµï¿½ï¿½Óµï¿½
 						Shot newShot = new Shot(newEnemyTank.getX()+10,newEnemyTank.getY()+30,newEnemyTank.direct);
-						//×Óµ¯Ìí¼Óµ½×Óµ¯¼¯ºÏÖĞ
+						//ï¿½Óµï¿½ï¿½ï¿½Óµï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						newEnemyTank.shots.add(newShot);
-						//Æô¶¯µĞÈË×Óµ¯Ïß³Ì
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ß³ï¿½
 						Thread threadShot = new Thread(newShot);
 						threadShot.start();
 						
 						enemyTanks.add(newEnemyTank);
 				  }else if(enemyTankOver == 20){
-					  JOptionPane.showConfirmDialog(this, "ÄãºÃµõ°¡£¡ÏûÃğÁËËùÓĞµÄµĞÈËÌ¹¿Ë£¡");
+					  JOptionPane.showConfirmDialog(this, "ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ĞµÄµï¿½ï¿½ï¿½Ì¹ï¿½Ë£ï¿½");
 				  }
 				 
 			  }
 			break;
 		case 2:
 		case 3:
-			 //ÅĞ¶ÏÊÇ·ñ»÷ÖĞ(×óÓÒ·½Ïò)
+			 //ï¿½Ğ¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½Ò·ï¿½ï¿½ï¿½)
 			if(shot.getX() > enemyTank.getX() && shot.getX() < enemyTank.getX() + 30 && shot.getY() > enemyTank.getY() && shot.getY() < enemyTank.getY() +20){
-				 //×Óµ¯ËÀÍö
+				 //ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½
 				  shot.isLive = false;
-				  //µĞÈËÌ¹¿ËËÀÍö
+				  //ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				  enemyTank.isLive = false;
-				  //µĞÈËÌ¹¿ËÊıÁ¿¼õ1
+				  //ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1
 				  Message.downEnemyTankNums();
-				  //Íæ¼Ò´òËÀµÄÌ¹¿ËÊı¼Ó1
+				  //ï¿½ï¿½Ò´ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1
 				  Message.addHitTankNumus();
-				  //´´½¨Ò»¸ö±¬Õ¨Àà
+				  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½
 				  Bobm bobm = new Bobm(enemyTank.getX(),enemyTank.getY());
-				  //Ìí¼Óµ½±¬Õ¨¼¯ºÏÖĞ
+				  //ï¿½ï¿½Óµï¿½ï¿½ï¿½Õ¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				  bobms.add(bobm);
 				  
 				  enemyTankOver++;
 				  if(enemyTankOver < 18){
 					  EnemyTank newEnemyTank = new EnemyTank(280,0);
-						//´´½¨µÄÌ¹¿ËÌí¼Óµ½Ì¹¿ËÃæ°åÖĞ
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½Óµï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					  newEnemyTank.setEnemyTanks(enemyTanks);
 						
 					  newEnemyTank.setColor(0);
 					  newEnemyTank.setDirect(1);
-						//Æô¶¯µĞÈËÌ¹¿ËÏß³Ì
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ß³ï¿½
 						Thread thread = new Thread(newEnemyTank);
 						thread.start();
-						//Ìí¼ÓµĞÈËÌ¹¿ËµÄ×Óµ¯
+						//ï¿½ï¿½Óµï¿½ï¿½ï¿½Ì¹ï¿½Ëµï¿½ï¿½Óµï¿½
 						Shot newShot = new Shot(newEnemyTank.getX()+10,newEnemyTank.getY()+30,newEnemyTank.direct);
-						//×Óµ¯Ìí¼Óµ½×Óµ¯¼¯ºÏÖĞ
+						//ï¿½Óµï¿½ï¿½ï¿½Óµï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						newEnemyTank.shots.add(newShot);
-						//Æô¶¯µĞÈË×Óµ¯Ïß³Ì
+						//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ß³ï¿½
 						Thread threadShot = new Thread(newShot);
 						threadShot.start();
 						
 						enemyTanks.add(newEnemyTank);
 				  }else if(enemyTankOver == 20){
-					  JOptionPane.showConfirmDialog(this, "ÄãºÃµõ°¡£¡ÏûÃğÁËËùÓĞµÄµĞÈËÌ¹¿Ë£¡");
+					  JOptionPane.showConfirmDialog(this, "ï¿½ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ĞµÄµï¿½ï¿½ï¿½Ì¹ï¿½Ë£ï¿½");
 				  }
 				 
 				
@@ -268,57 +272,57 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 		}
 	}
 	
-	//ÅĞ¶ÏµĞÈË×Óµ¯ÊÇ·ñ»÷ÖĞÍæ¼ÒÌ¹¿ËµÄ·½·¨
+	//ï¿½Ğ¶Ïµï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ËµÄ·ï¿½ï¿½ï¿½
 	private void hitRoleTank(Shot shot, RoleTank roleTank2) {
 		switch (roleTank2.direct) {
 		case 0:
 		case 1:
-			  //ÅĞ¶ÏÊÇ·ñ»÷ÖĞ(ÉÏÏÂ·½Ïò)
+			  //ï¿½Ğ¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½)
 			  if(shot.getX() > roleTank2.getX() && shot.getX() < roleTank2.getX()+20 && shot.getY() > roleTank2.getY() && shot.getY() < roleTank2.getY()+30){
-				  //×Óµ¯ËÀÍö
+				  //ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½
 				  shot.isLive = false;
-				  //µĞÈËÌ¹¿ËËÀÍö
+				  //ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				  roleTank2.isLive = false;
-				  //Íæ¼ÒÌ¹¿ËÊı¼õ1
+				  //ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1
 				  Message.downRoleTankNums();
 				 
-				  //´´½¨Ò»¸ö±¬Õ¨Àà
+				  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½
 				  Bobm bobm = new Bobm(roleTank2.getX(),roleTank2.getY());
-				  //Ìí¼Óµ½±¬Õ¨¼¯ºÏÖĞ
+				  //ï¿½ï¿½Óµï¿½ï¿½ï¿½Õ¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				  bobms.add(bobm);
 				  
-				//ÅĞ¶ÏÍæ¼ÒÊÇ·ñËÀÍö3´Î
+				//ï¿½Ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½3ï¿½ï¿½
 				  roleTankOver++;
 				 if(roleTankOver < 3){
 					 roleTank = new RoleTank(100,100);
 				 }else{
-					 JOptionPane.showConfirmDialog(this, "À¬»ø£¡Ì«²ËÁË£¡£¡£¡");
+					 JOptionPane.showConfirmDialog(this, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì«ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½");
 				 }
 				
 			  }
 			break;
 		case 2:
 		case 3:
-			 //ÅĞ¶ÏÊÇ·ñ»÷ÖĞ(×óÓÒ·½Ïò)
+			 //ï¿½Ğ¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½(ï¿½ï¿½ï¿½Ò·ï¿½ï¿½ï¿½)
 			if(shot.getX() > roleTank2.getX() && shot.getX() < roleTank2.getX() + 30 && shot.getY() > roleTank2.getY() && shot.getY() < roleTank2.getY() +20){
-				 //×Óµ¯ËÀÍö
+				 //ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½
 				  shot.isLive = false;
-				  //µĞÈËÌ¹¿ËËÀÍö
+				  //ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				  roleTank2.isLive = false;
 				  
-				  //Íæ¼ÒÌ¹¿ËÊı¼õ1
+				  //ï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1
 				  Message.downRoleTankNums();
 				
-				  //´´½¨Ò»¸ö±¬Õ¨Àà
+				  //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Õ¨ï¿½ï¿½
 				  Bobm bobm = new Bobm(roleTank2.getX(),roleTank2.getY());
-				  //Ìí¼Óµ½±¬Õ¨¼¯ºÏÖĞ
+				  //ï¿½ï¿½Óµï¿½ï¿½ï¿½Õ¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				  bobms.add(bobm);
-				//ÅĞ¶ÏÍæ¼ÒÊÇ·ñËÀÍö3´Î
+				//ï¿½Ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½3ï¿½ï¿½
 				  roleTankOver++;
 				 if(roleTankOver < 3){
 					 roleTank = new RoleTank(100,100);
 				 }else{
-					 JOptionPane.showConfirmDialog(this, "À¬»ø£¡Ì«²ËÁË£¡£¡£¡");
+					 JOptionPane.showConfirmDialog(this, "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì«ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½");
 				 }
 				 
 			}
@@ -327,10 +331,10 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 	}
 	
 	
-	//»­³öÌ¹¿ËµÄ·½·¨
+	//ï¿½ï¿½ï¿½ï¿½Ì¹ï¿½ËµÄ·ï¿½ï¿½ï¿½
 	private void drawTank(int x, int y, Graphics g, int direct, int type) {
 		
-		switch(type){   //ÉèÖÃÑÕÉ«
+		switch(type){   //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«
 		case 0:
 			g.setColor(Color.cyan);
 			break;
@@ -339,86 +343,102 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 			break;
 		}
 		
-		switch(direct){   //ÉèÖÃ·½Ïò
-		case 0:            //ÏòÉÏ
-			//»­³ö×ó±ß¾ØĞÎ
+		switch(direct){   //ï¿½ï¿½ï¿½Ã·ï¿½ï¿½ï¿½
+		case 0:            //ï¿½ï¿½ï¿½ï¿½
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¾ï¿½ï¿½ï¿½
 			g.fill3DRect(x, y, 5, 30, false);
-			//»­³öÓÒ±ß¾ØĞÎ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ò±ß¾ï¿½ï¿½ï¿½
 			g.fill3DRect(x+15, y, 5, 30, false);
-			//»­³öÖĞ¼ä¾ØĞÎ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½ï¿½ï¿½
 			g.fill3DRect(x+5, y+5, 10, 20, false);
-			//»­³öÖĞ¼äµÄÔ²
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½Ô²
 			g.fillOval(x+5,y+10, 10, 10);
-			//»­³öÏß
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			g.drawLine(x+10, y, x+10, y+10);
 			break;
-		case 1:           //ÏòÏÂ
-			//»­³ö×ó±ß¾ØĞÎ
+		case 1:           //ï¿½ï¿½ï¿½ï¿½
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¾ï¿½ï¿½ï¿½
 			g.fill3DRect(x, y, 5, 30, false);
-			//»­³öÓÒ±ß¾ØĞÎ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ò±ß¾ï¿½ï¿½ï¿½
 			g.fill3DRect(x+15, y, 5, 30, false);
-			//»­³öÖĞ¼ä¾ØĞÎ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½ï¿½ï¿½
 			g.fill3DRect(x+5, y+5, 10, 20, false);
-			//»­³öÖĞ¼äµÄÔ²
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½Ô²
 			g.fillOval(x+5,y+10, 10, 10);
-			//»­³öÏß
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			g.drawLine(x+10, y+20, x+10, y+30);
 			break;
-		case 2:         //Ïò×ó
-			//»­³ö×ó±ß¾ØĞÎ
+		case 2:         //ï¿½ï¿½ï¿½ï¿½
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¾ï¿½ï¿½ï¿½
 			g.fill3DRect(x-5, y+20, 30, 5, false);
-			//»­³öÓÒ±ß¾ØĞÎ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ò±ß¾ï¿½ï¿½ï¿½
 			g.fill3DRect(x-5, y+5, 30, 5, false);
-			//»­³öÖĞ¼ä¾ØĞÎ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½ï¿½ï¿½
 			g.fill3DRect(x, y+10, 20, 10, false);
-			//»­³öÖĞ¼äµÄÔ²
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½Ô²
 			g.fillOval(x+5,y+10, 10, 10);
-			//»­³öÏß
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			g.drawLine(x+5, y+15, x-5, y+15);
 			break;
-		case 3:          //ÏòÓÒ
-			//»­³ö×ó±ß¾ØĞÎ
+		case 3:          //ï¿½ï¿½ï¿½ï¿½
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß¾ï¿½ï¿½ï¿½
 			g.fill3DRect(x-5, y+20, 30, 5, false);
-			//»­³öÓÒ±ß¾ØĞÎ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ò±ß¾ï¿½ï¿½ï¿½
 			g.fill3DRect(x-5, y+5, 30, 5, false);
-			//»­³öÖĞ¼ä¾ØĞÎ
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½ï¿½ï¿½
 			g.fill3DRect(x, y+10, 20, 10, false);
-			//»­³öÖĞ¼äµÄÔ²
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¼ï¿½ï¿½Ô²
 			g.fillOval(x+5,y+10, 10, 10);
-			//»­³öÏß
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			g.drawLine(x+15, y+15, x+25, y+15);
 			break;
 			
 		}   
 	}
 
-	//¼üÅÌÑ¹ÏÂ WÎªÏòÉÏ£¬SÎªÏòÏÂ£¬AÎªÏò×ó£¬DÎªÏòÓÒ
+	//ï¿½ï¿½ï¿½ï¿½Ñ¹ï¿½ï¿½ WÎªï¿½ï¿½ï¿½Ï£ï¿½SÎªï¿½ï¿½ï¿½Â£ï¿½AÎªï¿½ï¿½ï¿½ï¿½DÎªï¿½ï¿½ï¿½ï¿½
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(e.getKeyChar() == KeyEvent.VK_W && this.roleTank.isStop == true){
+		if(e.getKeyCode() == 38 && this.roleTank.isStop == true){
 			this.roleTank.setDirect(0);
+			try {
+				this.client.outToServer.writeBytes("UP" + '\n');
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			this.roleTank.moveUp();
-		}else if(e.getKeyChar() == KeyEvent.VK_S && this.roleTank.isStop == true){
+		}else if(e.getKeyCode() == 40 && this.roleTank.isStop == true){
 			this.roleTank.setDirect(1);
 			this.roleTank.moveDown();
-		}else if(e.getKeyChar() == KeyEvent.VK_A && this.roleTank.isStop == true){
+			try {
+				this.client.outToServer.writeBytes("DOWN" + '\n');
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}else if(e.getKeyCode() == 37 && this.roleTank.isStop == true){
 			this.roleTank.setDirect(2);
 			this.roleTank.moveLeft();
-		}else if(e.getKeyChar() == KeyEvent.VK_D && this.roleTank.isStop == true){
+			try {
+				this.client.outToServer.writeBytes("LEFT" + '\n');
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		}else if(e.getKeyCode() == 39 && this.roleTank.isStop == true){
 			this.roleTank.setDirect(3);
 			this.roleTank.moveRight();
+			try {
+				this.client.outToServer.writeBytes("RIGHT" + '\n');
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		}  
 		
-		if(e.getKeyChar() == KeyEvent.VK_J && this.roleTank.isStop == true){
-			//×î¶àÖ»ÄÜ·¢Éä5¿Å×Óµ¯
+		if(e.getKeyCode() == 10 && this.roleTank.isStop == true){
 			if(this.roleTank.shots.size() < 5 && this.roleTank.isLive == true ){
-				//·¢Éä×Óµ¯
 				this.roleTank.shotRole();
-			}
-			
+			}	
 		}
 		
-		//¿Õ¸ñ¼üÎªÔİÍ£
 		if(e.getKeyChar() == KeyEvent.VK_SPACE){
 			if(flag % 2 != 0){
 				this.roleTank.speed = 0;
@@ -463,7 +483,7 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 	}
 
 
-	//Ã¿¸ô100ºÁÃëÖØ»æÒ»´ÎÍ¼µÄÏß³Ì
+	//Ã¿ï¿½ï¿½100ï¿½ï¿½ï¿½ï¿½ï¿½Ø»ï¿½Ò»ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ß³ï¿½
 	@Override
 	public void run() {
 		while(true){
@@ -474,7 +494,7 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 				e.printStackTrace();
 			}
 			
-			//µ÷ÓÃÅĞ¶ÏÊÇ·ñ»÷ÖĞµĞÈËÌ¹¿Ë
+			//ï¿½ï¿½ï¿½ï¿½ï¿½Ğ¶ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ğµï¿½ï¿½ï¿½Ì¹ï¿½ï¿½
 			for( int i = 0;i < this.roleTank.shots.size();i++){
 				Shot shot = this.roleTank.shots.get(i);
 				if(shot.isLive){
@@ -487,7 +507,7 @@ public class MainPanel extends JPanel implements KeyListener,Runnable{
 				}
 			}
 			
-			//ÅĞ¶ÏµĞÈËÌ¹¿ËÊÇ·ñ»÷ÖĞÎÒµÄÌ¹¿Ë
+			//ï¿½Ğ¶Ïµï¿½ï¿½ï¿½Ì¹ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½Ì¹ï¿½ï¿½
 			for(int i = 0;i < enemyTanks.size();i++){
 				EnemyTank enemyTank = enemyTanks.get(i);
 				if(enemyTank.isLive){

@@ -13,9 +13,11 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
+import client.Client;
+
 /**
- * ÓÎÏ·Ö÷½çÃæ
- * @author ÕÅÁ¢Ôö
+ * ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @author ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
  *
  */
 public class MainFrame extends JFrame implements ActionListener{
@@ -25,25 +27,22 @@ public class MainFrame extends JFrame implements ActionListener{
 
 	public MainFrame(){
 		
-		//³õÊ¼»¯´°¿Ú
 		initFrame();
 		
-		//Ìí¼ÓÃæ°å
 		addPanel();
 	}
 	
 
-	//Ìí¼ÓÃæ°å
 	private void addPanel() {
-		//²Ëµ¥Ìõ
+		//ï¿½Ëµï¿½ï¿½ï¿½
 		JMenuBar menuBar = new JMenuBar();
-		//²Ëµ¥
-		JMenu menu = new JMenu("ÓÎÏ·(G)");
+		//ï¿½Ëµï¿½
+		JMenu menu = new JMenu("ï¿½ï¿½Ï·(G)");
 		menu.setMnemonic('G');
-		menuItem = new JMenuItem("¿ªÊ¼ÐÂÓÎÏ·(N)");
-		JMenuItem exitGame = new JMenuItem("ÍË³öÓÎÏ·(E)");
+		menuItem = new JMenuItem("ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ï·(N)");
+		JMenuItem exitGame = new JMenuItem("ï¿½Ë³ï¿½ï¿½ï¿½Ï·(E)");
 		exitGame.setMnemonic('E');
-		//Ìí¼Ó¶¯×÷¼àÌý
+		//ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand("newGame");
 		exitGame.addActionListener(this);
@@ -62,9 +61,9 @@ public class MainFrame extends JFrame implements ActionListener{
 		
 	}
 
-	//³õÊ¼»¯´°¿Ú
+	//ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 private void initFrame() {
-		this.setTitle("Ì¹¿Ë´óÕ½");
+		this.setTitle("Ì¹ï¿½Ë´ï¿½Õ½");
 		this.setSize(600, 450);
 		this.setLocation(200,200);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -75,19 +74,20 @@ public class MainFrame extends JFrame implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 	      if(e.getActionCommand().equals("newGame")){
-	    	  //ÓÎÏ·Ãæ°å
-	    	  MainPanel mainPanel = new MainPanel();
+	    	  //ï¿½ï¿½Ï·ï¿½ï¿½ï¿½
+	    	  Client client = new Client("127.0.0.1", 4321);
+	    	  MainPanel mainPanel = new MainPanel(client);
 	    	  mainPanel.repaint();
 	    	  Thread thread = new Thread(mainPanel);
 	    	  thread.start();
-	    	  //ÒÆ³ýÉÏÒ»¸öÃæ°å
+	    	  //ï¿½Æ³ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½
 	    	  this.remove(startPanel);
 	    	  this.add(mainPanel);
 	    	  this.addKeyListener(mainPanel);
-	    	  //Ë¢ÐÂÏÔÊ¾ÐÂÃæ°å
-	    	  //ÉùÒôÎÄ¼þ
-	    	  Voice voice = new Voice("F:\\ÓÎÏ·ÉùÒô\\voice.wav");
-	    	  voice.start();
+	    	  //Ë¢ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½
+	    	  //ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
+//	    	  Voice voice = new Voice("F:\\ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½\\voice.wav");
+//	    	  voice.start();
 	    	  this.setVisible(true);
 	    	  
 	      }else if(e.getActionCommand().equals("exitGame")){
