@@ -2,298 +2,283 @@ package cn.qingyun.domain;
 
 import java.util.Vector;
 
-/**
- * µ–»ÀÃπøÀ¿‡
- * @author ’≈¡¢‘ˆ
- *
- */
-public class EnemyTank extends Tank implements Runnable{
+public class EnemyTank extends Tank implements Runnable {
 
-	//≈–∂œµ–»ÀÃπøÀ «∑Ò¥ÊªÓ
-	boolean isLive = true;
-	
-	//µ–»ÀÃπøÀµƒÀŸ∂»
-	//int spend = 1;
-	//±Íº« «∑Ò‘›Õ£
-	boolean isStop = true;
-	
-	//¥Ê∑≈µ–»À◊”µØµƒºØ∫œ
-	Vector<Shot> shots = new Vector<Shot>();
-	
-	//¥Ê∑≈√Ê∞Â÷–µƒÃπøÀºØ∫œ
-	Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
-	
-	
-	public EnemyTank(int x, int y) {
-		super(x, y);
-	}
+    boolean isLive = true;
 
-	//≈–∂œÃπøÀ «∑Ò”–÷ÿµ˛µƒ∑Ω∑®
-	public boolean isTouchOtherTank(){
-		
-		boolean flag = false;
-		
-		switch (this.direct) {
-		
-		case 0:    //µ±«∞ÃπøÀœÚ…œ
-			for(int i = 0;i < enemyTanks.size();i++){
-				EnemyTank enemyTank = enemyTanks.get(i);
-				if(enemyTank != this){  //ÃπøÀ≤ª «µ±«∞ÃπøÀ
-					
-					if(enemyTank.direct == 0 || enemyTank.direct == 1){   //ÃπøÀœÚ…œªÚ’ﬂœÚœ¬
-						
-						//thisÃπøÀµƒ◊Û…œµ„
-						if(this.x >= enemyTank.x && this.x <= enemyTank.x+20 && this.y >= enemyTank.y && this.y <= enemyTank.y+30){
-							return true;
-						}
-						//thisÃπøÀµƒ”“…œµ„
-						if(this.x+20 >= enemyTank.x && this.x+20 <= enemyTank.x+20 && this.y >= enemyTank.y && this.y <= enemyTank.y+30){
-							return true;
-						}		
-					}
-					
-					if(enemyTank.direct == 2 || enemyTank.direct == 3){   //ÃπøÀœÚ◊ÛªÚ’ﬂœÚ”“
-						//thisÃπøÀµƒ◊Û…œµ„
-						if(this.x >= enemyTank.x && this.x <=enemyTank.x+30 && this.y >= enemyTank.y && this.y <= enemyTank.y+20){
-							return true;
-						}
-						//thisÃπøÀµƒ◊Ûœ¬µ„
-						if(this.x >= enemyTank.x && this.x <= enemyTank.x+30 && this.y+30 >= enemyTank.y && this.y+30 <= enemyTank.y+20){
-							return true;
-						}
-					}
-				}
-			}
-			break;
-			
-		case 1:   //µ±«∞ÃπøÀœÚœ¬
-			for(int i = 0;i < enemyTanks.size();i++){
-				EnemyTank enemyTank = enemyTanks.get(i);
-				if(this !=enemyTank){
-					
-					if(enemyTank.direct == 0 || enemyTank.direct == 1){ //ÃπøÀœÚœ¬ªÚ’ﬂœÎ…œ
-						
-						//thisÃπøÀµƒ◊Ûœ¬µ„
-						if(this.x >= enemyTank.x && this.x <= enemyTank.x+20 && this.y+30 >= enemyTank.y && this.y+30 <= enemyTank.y+30){
-							return true;
-						}
-						//thisÃπøÀµƒ”“œ¬µ„
-						if(this.x+20 >= enemyTank.x && this.x+20 <= enemyTank.x+20 && this.y+30 >= enemyTank.y && this.y+30 <= enemyTank.y+30){
-							return true;
-						}
-					}
-					
-					if(enemyTank.direct == 2 || enemyTank.direct == 3){  //ÃπøÀœÚ◊ÛªÚ’ﬂœÎ”“
-						
-						//thisÃπøÀµƒ◊Û…œµ„
-						if(this.x >= enemyTank.x && this.x <= enemyTank.x+30 && this.y >= enemyTank.y && this.y <= enemyTank.y+20){
-							return true;
-						}
-						//thisÃπøÀµƒ◊Ûœ¬µ„
-						if(this.x >= enemyTank.x && this.x <= enemyTank.x+30 && this.y+30 >= enemyTank.y && this.y+30 <= enemyTank.y+20){
-							return true;
-						}
-					}
-				}
-			}
-			break;
-			
-		case 2:   //µ±«∞ÃπøÀœÚ◊Û
-	         for(int i = 0;i < enemyTanks.size();i++){
-	        	 EnemyTank enemyTank = enemyTanks.get(i);
-	        	 if(this != enemyTank){
-	        		 
-	        		 if(enemyTank.direct == 0 || enemyTank.direct == 1){  //ÃπøÀœÚœ¬ªÚ’ﬂœ¬…œ“∆∂Ø
-	        			 
-	        			 //thisÃπøÀ◊Û…œΩ«µ„
-	        			 if(this.x >= enemyTank.x && this.x <= enemyTank.x+20 && this.y >= enemyTank.y && this.y <= enemyTank.y+30){
-	        				 return true;
-	        			 }
-	        			 //thisÃπøÀ◊Ûœ¬Ω«µ„
-	        			 if(this.x >= enemyTank.x && this.x <= enemyTank.x+20 && this.y+20 >= enemyTank.y && this.y+20 <= enemyTank.y+30){
-	        				 return true;
-	        			 }
-	        		 }
-	        		 
-	        		 if(enemyTank.direct == 2 || enemyTank.direct == 3){  //ÃπøÀœÚ◊ÛªÚ’ﬂœÚ”““∆∂Ø
-	        			 
-	        			 //thisÃπøÀ◊Û…œΩ«µ„
-	        			 if(this.x >= enemyTank.x && this.x <= enemyTank.x+30 && this.y >= enemyTank.y && this.y <= enemyTank.y+20){
-	        				 return true;
-	        			 }
-	        			 //thisÃπøÀ◊Ûœ¬Ω«µ„
-	        			 if(this.x >= enemyTank.x && this.x <= enemyTank.x +30 && this.y+20 >= enemyTank.y && this.y+20 <= enemyTank.y+20){
-	        				 return true;
-	        			 }
-	        		 }
-	        	 }
-	         }
-			break;
-			
-		case 3:   //µ±«∞ÃπøÀœÚ”“
-			for(int i = 0;i < enemyTanks.size();i++){
-				EnemyTank enemyTank = enemyTanks.get(i);
-				if(this != enemyTank){
-					
-					if(enemyTank.direct == 0 || enemyTank.direct == 1 ){ //ÃπøÀœÚ…œªÚ’ﬂœÚœ¬“∆∂Ø
-						
-						//thisÃπøÀµƒ”“…œµ„
-						if(this.x+30 >= enemyTank.x && this.x+30 <= enemyTank.x+20 && this.y >= enemyTank.y && this.y <= enemyTank.y+30){
-							return true;
-						}
-						//thisÃπøÀµƒ”“œ¬µ„
-						if(this.x+30 >= enemyTank.x && this.x+30 <= enemyTank.x+20 && this.y+20 >= enemyTank.y && this.y+20 <= enemyTank.y+30){
-							return true;
-						}
-					}
-					
-					if(enemyTank.direct == 2 || enemyTank.direct == 3){   //ÃπøÀœÚ◊ÛªÚ’ﬂœÚ”““∆∂Ø
-						
-						//thisÃπøÀµƒ”“…œµ„
-						if(this.x+30 >= enemyTank.x && this.x+30 <= enemyTank.x+30 && this.y >= enemyTank.y && this.y <= enemyTank.y+20){
-							return true;
-						}
-						//thisÃπøÀµƒ”“œ¬µ„
-						if(this.x+30 >= enemyTank.x && this.x+30 <= enemyTank.x+30 && this.y+20 >= enemyTank.y && this.y+20 <= enemyTank.y+20){
-							return true;
-						}
-					}
-				}
-			}
-			break;
+    //int spend = 1;
+    boolean isStop = true;
 
-	
-		}
-		
-		return flag;
-	}
-	// µœ÷run∑Ω∑®
-	@Override
-	public void run() {
-		
-		while(true){
-			
-			switch (this.direct) {
-			case 0:
-				  for(int i = 0;i < 30;i++){
-					  if(this.y > 0 && !isTouchOtherTank()){
-						  this.y -= getSpeed(); 
-					  }
-					  try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-				  }
-				 
-				break;
+    public Vector<Shot> shots = new Vector<Shot>();
 
-			case 1:
-				 for(int i = 0;i < 30;i++){
-					 if(this.y < 275 && !isTouchOtherTank()){
-						 this.y += getSpeed();
-					 }
-					  try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-				  }
-				  
-				break;
-				
-			case 2:
-				 for(int i = 0;i < 30;i++){
-					 if(this.x > 0 && !isTouchOtherTank()){
-						 this.x -= getSpeed();
-					 }
-					  try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-				  }
-				  
-				break;
-				
-			case 3:
-				 for(int i = 0;i < 30;i++){
-					 if(this.x < 380 && !isTouchOtherTank()){
-						 this.x += getSpeed();
-					 }
-					  try {
-							Thread.sleep(50);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-				  }
-				  
-				break;
-			}
-			
-			//≈–∂œ «∑Ò“™∏¯ÃπøÀº”»Î◊”µØ
-			
-				if(this.isLive && isStop){
-					Shot shot = null;
-					if(this.shots.size() < 5){
-						//∏˘æ›∑ΩœÚ≈–∂œ◊”µØµƒŒª÷√
-						switch(this.getDirect()){
-						case 0:
-							//¥¥Ω®“ªø≈◊”µØ
-							shot = new Shot(this.getX()+8,this.getY()-10,this.getDirect());
-							//ÃÌº”µΩºØ∫œ÷–
-							this.shots.add(shot);
-							break;
-						case 1:
-							shot = new Shot(this.getX()+10,this.getY()+32,this.getDirect());
-							this.shots.add(shot);
-							break;
-						case 2:
-							shot = new Shot(this.getX()-10,this.getY()+12,this.getDirect());
-							this.shots.add(shot);
-							break;
-						case 3:
-							shot = new Shot(this.getX()+30,this.getY()+12,this.getDirect());
-							this.shots.add(shot);
-							break;
-						}
-					}
-					Thread t = new Thread(shot);
-					t.start();
-				}
-			
-			
-			
-			//ÀÊª˙≤˙…˙“ª∏ˆ∑ΩœÚ
-			if(isStop){
-				this.direct = (int)(Math.random()*4);
-			}
-			//≈–∂œµ–»ÀÃπøÀ «∑ÒÀ¿Õˆ
-			if(this.isLive == false){
-				break;
-			}
-			
-			
-		}
-	}
-
-	
-	
-	//-----------------------------------------------
-	
-	
-	public int getDirect() {
-		return direct;
-	}
+    Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
 
 
-	public void setEnemyTanks(Vector<EnemyTank> enemyTanks) {
-		this.enemyTanks = enemyTanks;
-	}
+    public EnemyTank(int x, int y) {
+        super(x, y);
+    }
 
-	public void setDirect(int direct) {
-		this.direct = direct;
-	}
+    public boolean isTouchOtherTank() {
+
+        boolean flag = false;
+
+        switch (this.direct) {
+
+            case 0:
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    if (enemyTank != this) {
+
+                        if (enemyTank.direct == 0 || enemyTank.direct == 1) {
+
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩœµÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 20 && this.y >= enemyTank.y && this.y <= enemyTank.y + 30) {
+                                return true;
+                            }
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩœµÔøΩ
+                            if (this.x + 20 >= enemyTank.x && this.x + 20 <= enemyTank.x + 20 && this.y >= enemyTank.y && this.y <= enemyTank.y + 30) {
+                                return true;
+                            }
+                        }
+
+                        if (enemyTank.direct == 2 || enemyTank.direct == 3) {   //ÃπÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩœµÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 30 && this.y >= enemyTank.y && this.y <= enemyTank.y + 20) {
+                                return true;
+                            }
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩ¬µÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 30 && this.y + 30 >= enemyTank.y && this.y + 30 <= enemyTank.y + 20) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 1:   //ÔøΩÔøΩ«∞ÃπÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    if (this != enemyTank) {
+
+                        if (enemyTank.direct == 0 || enemyTank.direct == 1) { //ÃπÔøΩÔøΩÔøΩÔøΩÔøΩ¬ªÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩ¬µÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 20 && this.y + 30 >= enemyTank.y && this.y + 30 <= enemyTank.y + 30) {
+                                return true;
+                            }
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩ¬µÔøΩ
+                            if (this.x + 20 >= enemyTank.x && this.x + 20 <= enemyTank.x + 20 && this.y + 30 >= enemyTank.y && this.y + 30 <= enemyTank.y + 30) {
+                                return true;
+                            }
+                        }
+
+                        if (enemyTank.direct == 2 || enemyTank.direct == 3) {  //ÃπÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩœµÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 30 && this.y >= enemyTank.y && this.y <= enemyTank.y + 20) {
+                                return true;
+                            }
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩ¬µÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 30 && this.y + 30 >= enemyTank.y && this.y + 30 <= enemyTank.y + 20) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 2:   //ÔøΩÔøΩ«∞ÃπÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    if (this != enemyTank) {
+
+                        if (enemyTank.direct == 0 || enemyTank.direct == 1) {  //ÃπÔøΩÔøΩÔøΩÔøΩÔøΩ¬ªÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ∆∂ÔøΩ
+
+                            //thisÃπÔøΩÔøΩÔøΩÔøΩÔøΩœΩ«µÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 20 && this.y >= enemyTank.y && this.y <= enemyTank.y + 30) {
+                                return true;
+                            }
+                            //thisÃπÔøΩÔøΩÔøΩÔøΩÔøΩ¬Ω«µÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 20 && this.y + 20 >= enemyTank.y && this.y + 20 <= enemyTank.y + 30) {
+                                return true;
+                            }
+                        }
+
+                        if (enemyTank.direct == 2 || enemyTank.direct == 3) {  //ÃπÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ∆∂ÔøΩ
+
+                            //thisÃπÔøΩÔøΩÔøΩÔøΩÔøΩœΩ«µÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 30 && this.y >= enemyTank.y && this.y <= enemyTank.y + 20) {
+                                return true;
+                            }
+                            //thisÃπÔøΩÔøΩÔøΩÔøΩÔøΩ¬Ω«µÔøΩ
+                            if (this.x >= enemyTank.x && this.x <= enemyTank.x + 30 && this.y + 20 >= enemyTank.y && this.y + 20 <= enemyTank.y + 20) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+
+            case 3:   //ÔøΩÔøΩ«∞ÃπÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+                for (int i = 0; i < enemyTanks.size(); i++) {
+                    EnemyTank enemyTank = enemyTanks.get(i);
+                    if (this != enemyTank) {
+
+                        if (enemyTank.direct == 0 || enemyTank.direct == 1) { //ÃπÔøΩÔøΩÔøΩÔøΩÔøΩœªÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ∆∂ÔøΩ
+
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩœµÔøΩ
+                            if (this.x + 30 >= enemyTank.x && this.x + 30 <= enemyTank.x + 20 && this.y >= enemyTank.y && this.y <= enemyTank.y + 30) {
+                                return true;
+                            }
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩ¬µÔøΩ
+                            if (this.x + 30 >= enemyTank.x && this.x + 30 <= enemyTank.x + 20 && this.y + 20 >= enemyTank.y && this.y + 20 <= enemyTank.y + 30) {
+                                return true;
+                            }
+                        }
+
+                        if (enemyTank.direct == 2 || enemyTank.direct == 3) {   //ÃπÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ∆∂ÔøΩ
+
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩœµÔøΩ
+                            if (this.x + 30 >= enemyTank.x && this.x + 30 <= enemyTank.x + 30 && this.y >= enemyTank.y && this.y <= enemyTank.y + 20) {
+                                return true;
+                            }
+                            //thisÃπÔøΩÀµÔøΩÔøΩÔøΩÔøΩ¬µÔøΩ
+                            if (this.x + 30 >= enemyTank.x && this.x + 30 <= enemyTank.x + 30 && this.y + 20 >= enemyTank.y && this.y + 20 <= enemyTank.y + 20) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                break;
+
+
+        }
+
+        return flag;
+    }
+
+    // µÔøΩÔøΩrunÔøΩÔøΩÔøΩÔøΩ
+    @Override
+    public void run() {
+//        while (true) {
+//            switch (this.direct) {
+//                case 0:
+//                    for (int i = 0; i < 30; i++) {
+//                        if (this.y > 0 && !isTouchOtherTank()) {
+//                            this.y -= getSpeed();
+//                        }
+//                        try {
+//                            Thread.sleep(50);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    break;
+//
+//                case 1:
+//                    for (int i = 0; i < 30; i++) {
+//                        if (this.y < 275 && !isTouchOtherTank()) {
+//                            this.y += getSpeed();
+//                        }
+//                        try {
+//                            Thread.sleep(50);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    break;
+//
+//                case 2:
+//                    for (int i = 0; i < 30; i++) {
+//                        if (this.x > 0 && !isTouchOtherTank()) {
+//                            this.x -= getSpeed();
+//                        }
+//                        try {
+//                            Thread.sleep(50);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    break;
+//
+//                case 3:
+//                    for (int i = 0; i < 30; i++) {
+//                        if (this.x < 380 && !isTouchOtherTank()) {
+//                            this.x += getSpeed();
+//                        }
+//                        try {
+//                            Thread.sleep(50);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//
+//                    break;
+//            }
+//
+//            //ÔøΩ–∂ÔøΩÔøΩ«∑ÔøΩ“™ÔøΩÔøΩÃπÔøΩÀºÔøΩÔøΩÔøΩÔøΩ”µÔøΩ
+//
+//            if (this.isLive && isStop) {
+//                Shot shot = null;
+//                if (this.shots.size() < 5) {
+//                    //ÔøΩÔøΩÔøΩ›∑ÔøΩÔøΩÔøΩÔøΩ–∂ÔøΩÔøΩ”µÔøΩÔøΩÔøΩŒªÔøΩÔøΩ
+//                    switch (this.getDirect()) {
+//                        case 0:
+//                            //ÔøΩÔøΩÔøΩÔøΩ“ªÔøΩÔøΩÔøΩ”µÔøΩ
+//                            shot = new Shot(this.getX() + 8, this.getY() - 10, this.getDirect());
+//                            //ÔøΩÔøΩ”µÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+//                            this.shots.add(shot);
+//                            break;
+//                        case 1:
+//                            shot = new Shot(this.getX() + 10, this.getY() + 32, this.getDirect());
+//                            this.shots.add(shot);
+//                            break;
+//                        case 2:
+//                            shot = new Shot(this.getX() - 10, this.getY() + 12, this.getDirect());
+//                            this.shots.add(shot);
+//                            break;
+//                        case 3:
+//                            shot = new Shot(this.getX() + 30, this.getY() + 12, this.getDirect());
+//                            this.shots.add(shot);
+//                            break;
+//                    }
+//                }
+//                Thread t = new Thread(shot);
+//                t.start();
+//            }
+//
+//
+//            //ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ“ªÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
+//            if (isStop) {
+//                this.direct = (int) (Math.random() * 4);
+//            }
+//            //ÔøΩ–∂œµÔøΩÔøΩÔøΩÃπÔøΩÔøΩÔøΩ«∑ÔøΩÔøΩÔøΩÔøΩÔøΩ
+//            if (this.isLive == false) {
+//                break;
+//            }
+//
+//
+//        }
+    }
+
+
+    //----------------------------------------------
+
+    public int getDirect() {
+        return direct;
+    }
+
+
+    public void setEnemyTanks(Vector<EnemyTank> enemyTanks) {
+        this.enemyTanks = enemyTanks;
+    }
+
+    public void setDirect(int direct) {
+        this.direct = direct;
+    }
 
 
 }

@@ -32,7 +32,7 @@ public class ClientThread extends Thread {
 				String inputStr = inFromServer.readLine();
 				if (inputStr == null) continue;
 				System.out.println("I got a message: " + inputStr);
-//				client.handle(streamIn.readUTF());
+				client.handle(inputStr);
 			} catch (IOException ioe) {
 				System.out.println("Listening error: " + ioe.getMessage());
 //				client.stop();

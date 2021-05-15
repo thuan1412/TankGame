@@ -28,6 +28,7 @@ public class GameServer implements Runnable {
 			System.out.println("Waiting for a client...");
 			try {
 				addClient(server.accept());
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -42,6 +43,7 @@ public class GameServer implements Runnable {
 				clients[clientCount].open();
 				clients[clientCount].start();
 				clientCount++;
+				this.sendMessageToAClient(clients[clientCount - 1].getId(), "CONNECTION");
 			} catch (IOException ioe) {
 				System.out.println("Error on adding client");
 			}
@@ -63,18 +65,39 @@ public class GameServer implements Runnable {
 		}
 		return -1;
 	}
-	
+
+	public synchronized  void sendMessageToAClient(long id, String input) {
+		for (int i = 0; i < clientCount; i++) {
+			if (id == clients[i].getId()) {
+				clients[i].sendToClient(input + " " + id + " " + this.clientCount + " " + this.getClientIds() + '\n');
+			}
+		}
+	}
+
 	public synchronized void handle(int id, String input) {
 		System.out.println(id + input);
 		System.out.println(clientCount);
 		for (int i = 0; i < clientCount; i++) {
 			System.out.println("Send to client: " + id + input);
-//			if (id != clients[i].getId()) {
-				clients[i].sendToClient(id + input + '\n');
-//			}
+			if (id != clients[i].getId()) {
+				if (input.equals("NEW_PLAYER")) {
+					clients[i].sendToClient(input + " " + id + " " + clientCount + " " + this.getClientIds() + '\n');
+				} else {
+					clients[i].sendToClient(input + " " + id + '\n');
+				}
+			}
 		}
 	}
-	
+
+	public String getClientIds() {
+		String ids = "";
+		for (int i = 0; i < clientCount - 1; i++) {
+			ids += this.clients[i].getId() + "-";
+		}
+		ids += this.clients[clientCount - 1].getId();
+		return ids;
+	}
+
 	public static void main(String[] args) {
 		GameServer server = new GameServer(4321);
 	}
