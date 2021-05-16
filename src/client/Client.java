@@ -16,7 +16,7 @@ public class Client implements Runnable {
     public StartPanel startPanel = null;
     public MainFrame mainFrame = null;
     public int clientId;
-    private int NUMBER_CLIENTS = 3;
+    private int NUMBER_CLIENTS = 4;
 
     public Client(String servername, int port) {
         try {
@@ -109,12 +109,12 @@ public class Client implements Runnable {
             case "ENEMY_MOVE": {
                 int senderId = Integer.parseInt(params[2]);
                 String direction = params[1];
-                this.mainPanel.onEnemyMove(senderId, direction);
+                this.mainPanel.onTankMove(senderId, direction);
                 break;
             }
             case "ENEMY_SHOT":
                 int senderId = Integer.parseInt(params[1]);
-                this.mainPanel.onEnemyShot(senderId);
+                this.mainPanel.onTankShot(senderId);
                 break;
             default:
                 System.out.println("DEFAULT EVENT " + message);

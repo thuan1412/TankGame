@@ -26,31 +26,33 @@ import client.Client;
 public class MainPanel extends JPanel implements KeyListener, Runnable {
     // User tank
     RoleTank roleTank = null;
-
+    TeamTank teamTank = null;
     public int flag = 0;
     int roleTankOver = 0;
-    int enemyTankOver = 0;
-
-    public Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();
-
+    int enemyTankOver = 1;
+//    int teamTankOver = 1;
+    public Vector<EnemyTank> enemyTanks = new Vector<EnemyTank>();   // array of enemyTanks
+    public Vector<TeamTank> teamTanks = new Vector<TeamTank>();   // array of teamTanks
     int enemyTankNum = 0;
-    private int NUMBER_CLIENTS = 3;
+    private int NUMBER_CLIENTS = 4;
 
     Image image1 = null;
     Image image2 = null;
     Image image3 = null;
-
+//    Image image4
     // connection instances
     Socket connection = null;
     DataOutputStream outToServer = null;
     BufferedReader inFromServer = null;
     Client client = null;
+    int roleTankIdx;
+    int teamTankIdx;
 
     // when tank got a bullet -> boommmmm
     Vector<Bobm> bobms = new Vector<Bobm>();
     public int clientIds[];
-    public ArrayList<Integer> enemyIds = new ArrayList<Integer>();
-
+    public ArrayList<Integer> enemyIds = new ArrayList<Integer>(); ///
+    public ArrayList<Integer> teamIds = new ArrayList<Integer>();
     public MainPanel(Client client, int clientIds[]) {
 //        roleTank = new RoleTank(this.enemyTanks.size() * 50, this.enemyTanks.size() * 50);
         this.client = client;
@@ -62,36 +64,47 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
 //            e.printStackTrace();
 //        }
 
-        for (int i = 0; i < NUMBER_CLIENTS; i++) {
-            if (this.client.clientId == clientIds[i]) {
-                roleTank = new RoleTank((i + 1) * 20, (i + 1) * 70);
-            } else {
-                EnemyTank enemyTank = new EnemyTank((i + 1) * 20, (i + 1) * 70);
-                enemyTank.setEnemyTanks(enemyTanks);
 
-                enemyTank.setColor(0);
-                enemyTank.setDirect(0);
-                enemyTanks.add(enemyTank);
-                this.enemyIds.add(this.clientIds[i]);
+        for (int i = 0; i < NUMBER_CLIENTS; i++) {
+            if (this.clientIds[i] == this.client.clientId) {
+                this.roleTankIdx = i;
+                this.roleTank = new RoleTank((this.roleTankIdx + 1) * 20, (this.roleTankIdx + 1) * 70);
+                break;
+
             }
         }
 
-        // add enemy tanks
-        for (int i = 0; i < enemyTankNum; i++) {
-            EnemyTank enemyTank = new EnemyTank((i + 1) * 50, 0);
+        switch (roleTankIdx) {
+            case 0:
+                this.teamTankIdx = 1;
+
+                break;
+            case 1:
+                this.teamTankIdx = 0;
+                break;
+            case 2:
+                this.teamTankIdx = 3;
+                break;
+            case 3:
+                this.teamTankIdx = 2;
+                break;
+        }
+        this.teamTank = new TeamTank((this.teamTankIdx + 1) * 20, (this.teamTankIdx + 1) * 70);
+        this.teamTank.setColor(2);
+
+        for (int i = 0; i < NUMBER_CLIENTS; i++) {
+            if (i == roleTankIdx || i == teamTankIdx) continue;
+
+
+            EnemyTank enemyTank = new EnemyTank((i + 1) * 20, (i + 1) * 70);
             enemyTank.setEnemyTanks(enemyTanks);
 
             enemyTank.setColor(0);
-            enemyTank.setDirect(1);
-            Thread thread = new Thread(enemyTank);
-            thread.start();
-            Shot shot = new Shot(enemyTank.getX() + 10, enemyTank.getY() + 30, enemyTank.direct);
-            enemyTank.shots.add(shot);
-            Thread threadShot = new Thread(shot);
-            threadShot.start();
-
+            enemyTank.setDirect(0);
             enemyTanks.add(enemyTank);
+            this.enemyIds.add(this.clientIds[i]);
         }
+
 
 
         ImageIcon icon = new ImageIcon(Panel.class.getResource("/bomb_1.gif"));
@@ -103,9 +116,29 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
     }
 
     // direction: UP - DOWN - LEFT - RIGHT
-    public void onEnemyMove(int enemyId, String direction) {
-        for (int i = 0; i < NUMBER_CLIENTS - 1; i++) {
-            if (this.enemyIds.get(i) == enemyId) {
+    public void onTankMove(int tankId, String direction) {
+        if ( tankId == this.clientIds[teamTankIdx]) {
+            switch(direction){
+                case "UP":
+                    teamTank.setDirect(0);
+                    teamTank.moveUp();
+                    break;
+                case "DOWN":
+                    teamTank.setDirect(1);
+                    teamTank.moveDown();
+                    break;
+                case "LEFT":
+                    teamTank.setDirect(2);
+                    teamTank.moveLeft();
+                    break;
+                case "RIGHT":
+                    teamTank.setDirect(3);
+                    teamTank.moveRight();
+                    break;
+            }
+        }
+        for (int i = 0; i < NUMBER_CLIENTS - 2; i++) {
+            if (this.enemyIds.get(i) == tankId) {
                 EnemyTank enemyTank = this.enemyTanks.get(i);
                 switch (direction) {
                     case "UP":
@@ -129,9 +162,38 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
         }
     }
 
-    public void onEnemyShot(int enemyId) {
-        for (int i = 0; i < NUMBER_CLIENTS - 1; i++) {
-            if (this.enemyIds.get(i) == enemyId) {
+
+
+    public void onTankShot(int tankId) {
+        System.out.println(this.teamTankIdx);
+        if (tankId == this.clientIds[teamTankIdx]){
+            Shot shot=null;
+            System.out.println("XXXXX"+teamTank.getDirect());
+
+            switch (teamTank.getDirect()) {
+                case 0:
+                    shot = new Shot(teamTank.getX() + 8, teamTank.getY() - 10, teamTank.getDirect());
+                    teamTank.shots.add(shot);
+                    break;
+                case 1:
+                    shot = new Shot(teamTank.getX() + 10, teamTank.getY() + 32, teamTank.getDirect());
+                    teamTank.shots.add(shot);
+                    break;
+                case 2:
+                    shot = new Shot(teamTank.getX() - 10, teamTank.getY() + 12, teamTank.getDirect());
+                    teamTank.shots.add(shot);
+                    break;
+                case 3:
+                    shot = new Shot(teamTank.getX() + 30, teamTank.getY() + 12, teamTank.getDirect());
+                    teamTank.shots.add(shot);
+                    break;
+            }
+            System.out.println("YYYYY: "+shot.isLive);
+            Thread t = new Thread(shot);
+            t.start();
+        }
+        for (int i = 0; i < NUMBER_CLIENTS - 2; i++) {
+            if (this.enemyIds.get(i) == tankId) {
                 EnemyTank enemyTank = this.enemyTanks.get(i);
                 Shot shot = null;
                 switch (enemyTank.getDirect()) {
@@ -168,6 +230,10 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
             drawTank(roleTank.getX(), roleTank.getY(), g, roleTank.getDirect(), 1);
         }
 
+        if (teamTank.isLive) {
+            drawTank(teamTank.getX(), teamTank.getY(), g, teamTank.getDirect(), 2);
+        }
+
         drawTank(60, 320, g, 0, 0);
         drawTank(430, 60, g, 0, 0);
         drawTank(130, 320, g, 0, 1);
@@ -197,6 +263,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
             }
         }
 
+
+
         for (int i = 0; i < this.roleTank.shots.size(); i++) {
             Shot myShot = this.roleTank.shots.get(i);
             if (myShot != null && myShot.isLive == true) {
@@ -209,6 +277,17 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
             }
         }
 
+        for (int i = 0; i < this.teamTank.shots.size(); i++) {
+            Shot myShot = this.teamTank.shots.get(i);
+            if (myShot != null && myShot.isLive == true) {
+                g.setColor(Color.red);
+                g.draw3DRect(myShot.getX(), myShot.getY(), 2, 2, false);
+            }
+
+            if (myShot.isLive == false) {
+                this.teamTank.shots.remove(myShot);
+            }
+        }
 
         for (int i = 0; i < bobms.size(); i++) {
             Bobm bobm = bobms.get(i);
@@ -243,24 +322,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                     Bobm bobm = new Bobm(enemyTank.getX(), enemyTank.getY());
                     bobms.add(bobm);
 
-                    enemyTankOver++;
-                    if (enemyTankOver < 18) {
-                        EnemyTank newEnemyTank = new EnemyTank(280, 0);
-                        newEnemyTank.setEnemyTanks(enemyTanks);
 
-                        newEnemyTank.setColor(0);
-                        newEnemyTank.setDirect(1);
-                        Thread thread = new Thread(newEnemyTank);
-                        thread.start();
-                        Shot newShot = new Shot(newEnemyTank.getX() + 10, newEnemyTank.getY() + 30, newEnemyTank.direct);
-                        newEnemyTank.shots.add(newShot);
-                        Thread threadShot = new Thread(newShot);
-                        threadShot.start();
-
-                        enemyTanks.add(newEnemyTank);
-                    } else if (enemyTankOver == 20) {
-                        JOptionPane.showConfirmDialog(this, "��õ��������������еĵ���̹�ˣ�");
-                    }
 
                 }
                 break;
@@ -274,24 +336,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                     Bobm bobm = new Bobm(enemyTank.getX(), enemyTank.getY());
                     bobms.add(bobm);
 
-                    enemyTankOver++;
-                    if (enemyTankOver < 18) {
-                        EnemyTank newEnemyTank = new EnemyTank(280, 0);
-                        newEnemyTank.setEnemyTanks(enemyTanks);
 
-                        newEnemyTank.setColor(0);
-                        newEnemyTank.setDirect(1);
-                        Thread thread = new Thread(newEnemyTank);
-                        thread.start();
-                        Shot newShot = new Shot(newEnemyTank.getX() + 10, newEnemyTank.getY() + 30, newEnemyTank.direct);
-                        newEnemyTank.shots.add(newShot);
-                        Thread threadShot = new Thread(newShot);
-                        threadShot.start();
-
-                        enemyTanks.add(newEnemyTank);
-                    } else if (enemyTankOver == 20) {
-                        JOptionPane.showConfirmDialog(this, "��õ��������������еĵ���̹�ˣ�");
-                    }
 
 
                 }
@@ -299,7 +344,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
         }
     }
 
-    private void hitRoleTank(Shot shot, RoleTank roleTank2) {
+    private void hitRoleTank(Shot shot, Tank roleTank2) {
         switch (roleTank2.direct) {
             case 0:
             case 1:
@@ -311,12 +356,6 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                     Bobm bobm = new Bobm(roleTank2.getX(), roleTank2.getY());
                     bobms.add(bobm);
 
-                    roleTankOver++;
-                    if (roleTankOver < 3) {
-                        roleTank = new RoleTank(100, 100);
-                    } else {
-                        JOptionPane.showConfirmDialog(this, "������̫���ˣ�����");
-                    }
                 }
                 break;
             case 2:
@@ -329,12 +368,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
 
                     Bobm bobm = new Bobm(roleTank2.getX(), roleTank2.getY());
                     bobms.add(bobm);
-                    roleTankOver++;
-                    if (roleTankOver < 3) {
-                        roleTank = new RoleTank(100, 100);
-                    } else {
-                        JOptionPane.showConfirmDialog(this, "������̫���ˣ�����");
-                    }
+
 
                 }
                 break;
@@ -349,6 +383,9 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                 break;
             case 1: // role
                 g.setColor(Color.yellow);
+                break;
+            case 2:
+                g.setColor(Color.red);
                 break;
         }
 
@@ -496,6 +533,18 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                 }
             }
 
+            for (int i = 0; i < this.teamTank.shots.size(); i++) {
+                Shot shot = this.teamTank.shots.get(i);
+                if (shot.isLive) {
+                    for (int j = 0; j < this.enemyTanks.size(); j++) {
+                        EnemyTank enemyTank = this.enemyTanks.get(j);
+                        if (enemyTank.isLive) {
+                            hitTank(shot, enemyTank);
+                        }
+                    }
+                }
+            }
+
             for (int i = 0; i < enemyTanks.size(); i++) {
                 EnemyTank enemyTank = enemyTanks.get(i);
                 if (enemyTank.isLive) {
@@ -505,6 +554,11 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                             RoleTank roleTank = this.roleTank;
                             if (roleTank.isLive) {
                                 hitRoleTank(shot, roleTank);
+//                                hitRoleTank(shot, teamTank);
+                            }
+                            if (teamTank.isLive) {
+//                                hitRoleTank(shot, roleTank);
+                                hitRoleTank(shot, teamTank);
                             }
                         }
                     }

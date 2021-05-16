@@ -6,7 +6,7 @@ public class RoleTank extends Tank {
 
     Shot shot = null;
     Vector<Shot> shots = new Vector<Shot>();
-    boolean isLive = true;
+//    boolean isLive = true;
     boolean isStop = true;
 
     public RoleTank(int x, int y) {

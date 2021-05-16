@@ -17,6 +17,7 @@ public class Tank {
     public int direct = 0;
 
     public int Color = 0;
+    boolean isLive = true;
 
     public Tank(int x, int y) {
         super();
