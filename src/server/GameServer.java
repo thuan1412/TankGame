@@ -73,7 +73,7 @@ public class GameServer implements Runnable {
 		}
 	}
 
-	public synchronized void handle(int id, String input) throws IOException {
+	public synchronized void handle(int id, String input) throws IOException, InterruptedException {
 		System.out.println(id + input);
 		System.out.println(clientCount);
 		if  (input.equals("DISCONNECT")) {
@@ -93,6 +93,13 @@ public class GameServer implements Runnable {
 				clients[k].sendToClient(input + " " + id + '\n');
 			}
 			return;
+		}
+		if  (input.equals("END")) {
+			Thread.sleep(3000);
+
+			for (int k = 0; k < clientCount; k++) {
+				clients[k].sendToClient(input + " " + id + '\n');
+			}
 		}
 		for (int i = 0; i < clientCount; i++) {
 			System.out.println("Send to client: " + clients[i].getId() + " " + input);

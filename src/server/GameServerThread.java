@@ -28,7 +28,7 @@ public class GameServerThread extends Thread {
 					continue;
 				}
 				server.handle(id, inputStr);
-			} catch (IOException ioe) {
+			} catch (IOException | InterruptedException ioe) {
 			}
 		}
 	}

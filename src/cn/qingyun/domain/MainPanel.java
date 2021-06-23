@@ -365,6 +365,15 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                 }
                 break;
         }
+        boolean isEnd = false;
+
+        for (int i = 0; i < NUMBER_CLIENTS - 2; i++) {
+            isEnd = isEnd || this.enemyTanks.get(i).isLive;
+        }
+
+        if (!isEnd) {
+            this.client.sendMessage("END");
+        }
     }
 
     private void hitRoleTank(Shot shot, Tank roleTank2) {

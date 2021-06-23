@@ -2,6 +2,7 @@ package client;
 
 import cn.qingyun.domain.*;
 
+import java.awt.event.WindowEvent;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -117,6 +118,10 @@ public class Client implements Runnable {
                 } else {
                     this.mainPanel.userDisconnect(senderId);
                 }
+                break;
+            }
+            case "END": {
+                this.mainFrame.dispatchEvent(new WindowEvent(this.mainFrame, WindowEvent.WINDOW_CLOSING));
                 break;
             }
             default:
