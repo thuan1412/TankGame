@@ -31,7 +31,7 @@ public class ClientThread extends Thread {
 			try {
 				String inputStr = inFromServer.readLine();
 				if (inputStr == null) continue;
-				System.out.println("I got a message: " + inputStr);
+				System.out.println("Message: " + inputStr);
 				client.handle(inputStr);
 			} catch (IOException ioe) {
 				System.out.println("Listening error: " + ioe.getMessage());

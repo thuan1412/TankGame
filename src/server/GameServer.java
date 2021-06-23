@@ -7,9 +7,9 @@ import java.net.Socket;
 public class GameServer implements Runnable {
 	private int MAX_CLIENTS_COUNT = 4;
 	private GameServerThread clients[] = new GameServerThread[MAX_CLIENTS_COUNT];
+	private int clientCount = 0;
 	private ServerSocket server = null;
 	private Thread thread = null;
-	private int clientCount = 0;
 
 	public GameServer(int port) {
 		try {
@@ -28,7 +28,6 @@ public class GameServer implements Runnable {
 			System.out.println("Waiting for a client...");
 			try {
 				addClient(server.accept());
-
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -56,7 +55,7 @@ public class GameServer implements Runnable {
 			thread.start();
 		}
 	}
-	
+
 	private int findClient(int id) {
 		for (int i = 0; i < clientCount; i++) {
 			if (clients[i].getId() == id) {
@@ -66,7 +65,7 @@ public class GameServer implements Runnable {
 		return -1;
 	}
 
-	public synchronized  void sendMessageToAClient(long id, String input) {
+	public void sendMessageToAClient(long id, String input) {
 		for (int i = 0; i < clientCount; i++) {
 			if (id == clients[i].getId()) {
 				clients[i].sendToClient(input + " " + id + " " + this.clientCount + " " + this.getClientIds() + '\n');
@@ -74,16 +73,37 @@ public class GameServer implements Runnable {
 		}
 	}
 
-	public synchronized void handle(int id, String input) {
+	public synchronized void handle(int id, String input) throws IOException {
 		System.out.println(id + input);
 		System.out.println(clientCount);
-		for (int i = 0; i < clientCount; i++) {
-			System.out.println("Send to client: " + id + input);
-			if (id != clients[i].getId()) {
-				if (input.equals("NEW_PLAYER")) {
-					clients[i].sendToClient(input + " " + id + " " + clientCount + " " + this.getClientIds() + '\n');
+		if  (input.equals("DISCONNECT")) {
+			// remove this client from client array;
+			GameServerThread tempClients[] = new GameServerThread[MAX_CLIENTS_COUNT];
+			int clientCountTemp = 0;
+			for (int j = 0; j < clientCount; j++) {
+				if (clients[j].getId() != id) {
+					tempClients[clientCountTemp++] = clients[j];
 				} else {
-					clients[i].sendToClient(input + " " + id + '\n');
+					clients[j].close();
+				}
+			}
+			clientCount--;
+			clients = tempClients;
+			for (int k = 0; k < clientCount; k++) {
+				clients[k].sendToClient(input + " " + id + '\n');
+			}
+			return;
+		}
+		for (int i = 0; i < clientCount; i++) {
+			System.out.println("Send to client: " + clients[i].getId() + " " + input);
+			if (id != clients[i].getId()) {
+				switch (input) {
+					case "NEW_PLAYER": {
+						clients[i].sendToClient(input + " " + id + " " + clientCount + " " + this.getClientIds() + '\n');
+						break;
+					}
+					default:
+						clients[i].sendToClient(input + " " + id + '\n');
 				}
 			}
 		}

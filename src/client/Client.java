@@ -15,6 +15,7 @@ public class Client implements Runnable {
     public MainPanel mainPanel = null;
     public StartPanel startPanel = null;
     public MainFrame mainFrame = null;
+    public int clientCount;
     public int clientId;
     private int NUMBER_CLIENTS = 4;
 
@@ -25,8 +26,10 @@ public class Client implements Runnable {
             start();
         } catch (UnknownHostException e) {
             System.out.println("Unknown host exception");
+            System.exit(1);
         } catch (IOException ioe) {
             System.out.println("Unexpected exception: " + ioe.getMessage());
+            System.exit(1);
         }
     }
 
@@ -54,17 +57,16 @@ public class Client implements Runnable {
         String[] params = message.split(" ");
         String messageType = params[0];
 //        int senderId = Integer.parseInt(params[2]);
-        System.out.println("RECEIVE MESSAGE: " + message);
 
         switch (messageType) {
             case "CONNECTION": {
                 this.clientId = Integer.parseInt(params[1]);
-                int clientCount = Integer.parseInt(params[2]);
-                System.out.println(this.startPanel);
-                while (this.startPanel == null) {
-                    System.out.println("start panel null");
-                }
+                clientCount = Integer.parseInt(params[2]);
+
+                while (this.startPanel == null) {}
+                for (int i = 0; i < 5000; i++) {int a = 100*100;}
                 this.startPanel.updateUserCount(clientCount);
+
                 // change
                 if (clientCount >= NUMBER_CLIENTS) {
                     int[] clientIds = new int[4];
@@ -79,20 +81,7 @@ public class Client implements Runnable {
             }
             case "NEW_PLAYER": {
                 System.out.println("New player handler");
-                int clientCount = Integer.parseInt(params[2]);
-//                EnemyTank enemyTank = new EnemyTank((this.mainPanel.enemyTanks.size() + 1) * 50, 50);
-//                enemyTank.setEnemyTanks(this.mainPanel.enemyTanks);
-//
-//                enemyTank.setColor(0);
-//                enemyTank.setDirect(1);
-//                Thread thread = new Thread(enemyTank);
-//                thread.start();
-//                Shot shot = new Shot(enemyTank.getX() + 10, enemyTank.getY() + 30, enemyTank.direct);
-//                enemyTank.shots.add(shot);
-//                Thread threadShot = new Thread(shot);
-//                threadShot.start();
-
-//                this.mainPanel.enemyTanks.add(enemyTank);
+                clientCount = Integer.parseInt(params[2]);
                 if (clientCount >= NUMBER_CLIENTS) {
                     int[] clientIds = new int[4];
                     String[] clientIdsStr = params[3].split("-");
@@ -103,6 +92,9 @@ public class Client implements Runnable {
                     this.mainFrame.clientIds = clientIds;
                     this.mainFrame.enterGame();
                 }
+
+                while (this.startPanel == null) {}
+                for (int i = 0; i < 5000; i++) {int a = 100*100;}
                 this.startPanel.updateUserCount(clientCount);
                 break;
             }
@@ -112,10 +104,21 @@ public class Client implements Runnable {
                 this.mainPanel.onTankMove(senderId, direction);
                 break;
             }
-            case "ENEMY_SHOT":
+            case "ENEMY_SHOT": {
                 int senderId = Integer.parseInt(params[1]);
                 this.mainPanel.onTankShot(senderId);
                 break;
+            }
+            case "DISCONNECT": {
+                int senderId = Integer.parseInt(params[1]);
+                if (this.mainPanel == null) {
+                    System.out.println("client count 1: " + clientCount);
+                    this.startPanel.updateUserCount(--clientCount);
+                } else {
+                    this.mainPanel.userDisconnect(senderId);
+                }
+                break;
+            }
             default:
                 System.out.println("DEFAULT EVENT " + message);
                 break;

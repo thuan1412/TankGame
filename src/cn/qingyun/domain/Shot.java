@@ -37,7 +37,7 @@ public class Shot implements Runnable {
                 e.printStackTrace();
             }
 
-            if (this.x < -2 || this.x > 400 || this.y < -2 || this.y > 300) {
+            if (this.x < -2 || this.x > 650 || this.y < -2 || this.y > 400) {
                 this.isLive = false;
                 break;
             }

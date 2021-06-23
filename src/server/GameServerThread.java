@@ -1,9 +1,6 @@
 package server;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,9 +29,6 @@ public class GameServerThread extends Thread {
 				}
 				server.handle(id, inputStr);
 			} catch (IOException ioe) {
-//				System.out.println(ioe.getStackTrace());
-//				this.interrupt();
-	//			this.server.remove(id);
 			}
 		}
 	}
@@ -45,10 +39,8 @@ public class GameServerThread extends Thread {
 			this.outToClient.writeBytes(msg);
 		} catch (IOException ioe) {
 			System.out.println(this.id + " ERROR sending: " + ioe.getMessage());
-//			server.remove(ID);
 		}
 	}
-	
 	public void open() throws IOException {
 //		this.inFromClient = new BufferedInputStream(socket.getInputStream());
 	}

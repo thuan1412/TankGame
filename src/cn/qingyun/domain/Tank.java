@@ -1,6 +1,7 @@
 package cn.qingyun.domain;
 
 import javax.swing.JPanel;
+import java.util.Vector;
 
 /**
  * ̹�����û��趨̹�˵�λ��
@@ -18,6 +19,7 @@ public class Tank {
 
     public int Color = 0;
     boolean isLive = true;
+    public Vector<Shot> shots = new Vector<Shot>();
 
     public Tank(int x, int y) {
         super();

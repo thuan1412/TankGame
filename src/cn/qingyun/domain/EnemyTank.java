@@ -1,5 +1,7 @@
 package cn.qingyun.domain;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.Vector;
 
 public class EnemyTank extends Tank implements Runnable {

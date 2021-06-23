@@ -13,10 +13,10 @@ public class StartPanel extends JPanel {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        g.fillRect(0, 0, 400, 300);
+        g.fillRect(0, 0, 600, 450);
         if (times % 2 == 0) {
-            g.setColor(Color.yellow);
-            Font myFont = new Font("������κ", Font.BOLD, 30);
+            g.setColor(Color.green);
+            Font myFont = new Font(Font.SANS_SERIF, Font.BOLD, 30);
             g.setFont(myFont);
             g.drawString("Total number : " + userCount, 150, 150);
         }

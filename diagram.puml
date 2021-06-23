@@ -1,0 +1,106 @@
+@startuml
+
+class Tank {
+  boolean islive
+  Color color;
+  moveUp()
+  moveDown()
+  moveLeft()
+  moveRight()
+  setDirect()
+  getDirect()
+}
+
+
+class RoleTank {
+}
+class RoleTank {
+}
+
+
+
+class RoleTank extends Tank {
+    lor yellow;
+}
+
+class TeamTank extends Tank {
+    Color red;
+}
+
+class EnemyTank extends Tank {
+    Color cyan;
+}
+
+class Client implements Runnable {
+    Socket socket
+    Thread thread
+    DataOutputStream outToServer;
+    ClientThread clientThread;
+    MainPanel mainPanel;
+    MainFrame mainFrame;
+    int clientCount;
+    int clientId;
+
+    start()
+    sendMessage(String)
+    handle(String)
+    run()
+}
+
+class ClientThread extends Thread {
+    void open();
+    void run();
+    Socket socket;
+    Client client;
+    BufferReader inFromServer;
+}
+
+class GameServer implements Runnable {
+    int findClient(int)
+    void handle(int, String)
+    String getClientIds()
+    void start()
+    void addClient(Socket)
+
+    GameServerThread clients[];
+    int clientCount;
+    ServerSocket server;
+}
+
+class GameServerThread extends Thread {
+    void sendToClient(String)
+    int getId()
+    GameServer server
+    Socket socket
+    int id
+    DataOutputStream outToClient
+    BufferReader inFromClient
+}
+
+class MainFrame extends JFrame {
+    void addPanel()
+    void enterGame()
+    StartPanel startPanel;
+}
+
+class StartPanel {
+
+}
+
+class MainPanel {
+    RoleTank roleTank;
+    TeamTank teamTank;
+    EnemyTank enemyTanks[];
+    int[][] rocks;
+    int[] trapPosition;
+
+    boolean isMovable(tank, direction);
+    boolean checkTrap(tank);
+    drawTank(tank);
+    hitTank(Shot, Tank);
+    onTankMove(int, String);
+    onTankShot(int);
+}
+
+
+@enduml

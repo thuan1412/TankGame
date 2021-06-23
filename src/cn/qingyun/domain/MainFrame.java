@@ -4,8 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Panel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -28,8 +27,18 @@ public class MainFrame extends JFrame implements ActionListener {
         this.client = new Client("127.0.0.1", 4321);
         this.client.startPanel = startPanel;
         this.client.mainFrame = this;
-        System.out.println("start panel: " + startPanel);
         this.client.sendMessage("NEW_PLAYER");
+
+        this.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowClosing(WindowEvent e)
+            {
+                client.sendMessage("DISCONNECT");
+                System.out.println("disconnect");
+                e.getWindow().dispose();
+            }
+        });
     }
 
     private void addPanel() {
@@ -79,23 +88,6 @@ public class MainFrame extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals("newGame")) {
             enterGame();
-//            EnemyTank[] enemyTanks = {};
-//            MainPanel mainPanel = new MainPanel(client, enemyTanks);
-//
-//            this.client.mainPanel = mainPanel;
-//
-//
-//            mainPanel.repaint();
-//            Thread thread = new Thread(mainPanel);
-//            thread.start();
-//
-//            this.remove(startPanel);
-//            this.add(mainPanel);
-//            this.addKeyListener(mainPanel);
-////	    	  Voice voice = new Voice("F:\\��Ϸ����\\voice.wav");
-////	    	  voice.start();
-//            this.setVisible(true);
-
         } else if (e.getActionCommand().equals("exitGame")) {
             System.exit(0);
         }
