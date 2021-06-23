@@ -2,6 +2,7 @@ package client;
 
 import cn.qingyun.domain.*;
 
+import javax.swing.*;
 import java.awt.event.WindowEvent;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -121,6 +122,15 @@ public class Client implements Runnable {
                 break;
             }
             case "END": {
+                System.out.println(params[1] + this.clientId);
+                if (params[1].contains(Integer.toString(this.clientId))) {
+                    JOptionPane.showMessageDialog(this.mainPanel,
+                            "You lose");
+                } else {
+                    JOptionPane.showMessageDialog(this.mainPanel,
+                            "You won.");
+                }
+
                 this.mainFrame.dispatchEvent(new WindowEvent(this.mainFrame, WindowEvent.WINDOW_CLOSING));
                 break;
             }

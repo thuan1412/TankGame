@@ -31,6 +31,7 @@ public class ClientThread extends Thread {
 			try {
 				String inputStr = inFromServer.readLine();
 				if (inputStr == null) continue;
+//				this.client.clientId
 				System.out.println("Message: " + inputStr);
 				client.handle(inputStr);
 			} catch (IOException ioe) {

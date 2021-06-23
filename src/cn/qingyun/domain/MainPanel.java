@@ -259,12 +259,12 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
 
         for (int i = 0; i < this.roleTank.shots.size(); i++) {
             Shot myShot = this.roleTank.shots.get(i);
-            if (myShot != null && myShot.isLive == true) {
+            if (myShot != null && myShot.isLive) {
                 g.setColor(Color.yellow);
                 g.draw3DRect(myShot.getX(), myShot.getY(), 2, 2, false);
             }
 
-            if (myShot.isLive == false) {
+            if (!myShot.isLive) {
                 this.roleTank.shots.remove(myShot);
             }
         }
@@ -366,13 +366,14 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                 break;
         }
         boolean isEnd = false;
-
+        String enemyStr = "";
         for (int i = 0; i < NUMBER_CLIENTS - 2; i++) {
             isEnd = isEnd || this.enemyTanks.get(i).isLive;
+            enemyStr += this.enemyIds.get(i).toString() + "-";
         }
 
         if (!isEnd) {
-            this.client.sendMessage("END");
+            this.client.sendMessage("END " + enemyStr);
         }
     }
 
@@ -515,7 +516,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                     break;
 
             }
-            System.out.printf("%d %d\n",xNew, yNew);
+//            System.out.printf("%d %d\n",xNew, yNew);
             if (yNew < 0 || yNew > 365 || xNew < 0 || xNew > 575) {
                 return false;
             }
