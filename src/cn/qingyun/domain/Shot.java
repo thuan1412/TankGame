@@ -13,7 +13,6 @@ public class Shot implements Runnable {
         this.direct = direct;
     }
 
-
     @Override
     public void run() {
         while (true) {

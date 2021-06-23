@@ -30,15 +30,16 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
     public Vector<TeamTank> teamTanks = new Vector<TeamTank>();   // array of teamTanks
     int enemyTankNum = 0;
     private int NUMBER_CLIENTS = 4;
-    int[][] rocks = {{0, 150, 125, 205 }, {150, 75, 250, 125}, {175, 225, 200, 350}};
-    int[] trapLocation = {195, 175, 225, 210};
+    int[][] rocks = {{0, 150, 125, 205 }, {150, 75, 250, 125}, {175, 225, 200, 350}, {435, 20,  480, 150}, {330, 280, 450, 325}, {475, 150, 575, 205}};
+    int[][] trapLocations = {{195, 175, 225, 210}, {100, 230, 130, 275}, {400, 30, 430, 70}};
+    boolean[] trapAlive = {true, true, true};
 
     Image image1 = null;
     Image image2 = null;
     Image image3 = null;
     Image rockIcon = null;
     Image trapIcon = null;
-    boolean trapAlive = true;
+    Image bg = null;
 
     //    Image image4
     // connection instances
@@ -95,8 +96,6 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
             this.enemyIds.add(this.clientIds[i]);
         }
 
-
-
         ImageIcon icon = new ImageIcon(Panel.class.getResource("/bomb_1.gif"));
         image1 = icon.getImage();
         ImageIcon icon2 = new ImageIcon(Panel.class.getResource("/bomb_2.gif"));
@@ -105,6 +104,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
         image3 = icon3.getImage();
         this.rockIcon = new ImageIcon(Panel.class.getResource("/rock.png")).getImage();
         this.trapIcon = new ImageIcon(Panel.class.getResource("/trap.png")).getImage();
+        this.bg = new ImageIcon(Panel.class.getResource("/bg.jpg")).getImage();
     }
 
     // direction: UP - DOWN - LEFT - RIGHT
@@ -151,12 +151,16 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
         for (int i = 0; i < NUMBER_CLIENTS - 2; i++) {
             if (this.enemyIds.get(i) == tankId) {
                 EnemyTank etank = this.enemyTanks.get(i);
-                if (!this.trapAlive) return;
-                if (etank.y < trapLocation[3] && etank.y > trapLocation[1] && etank.x + 1 > trapLocation[0] && etank.x < trapLocation[2]) {
-                    etank.isLive = false;
-                    Bobm bobm = new Bobm(etank.getX(), etank.getY());
-                    bobms.add(bobm);
-                    this.trapAlive = false;
+                for (int j = 0; j < trapLocations.length; j++) {
+                    if (!this.trapAlive[j]) continue;
+
+                    int[] trapLocation = trapLocations[j];
+                    if (etank.y < trapLocation[3] && etank.y > trapLocation[1] && etank.x + 1 > trapLocation[0] && etank.x < trapLocation[2]) {
+                        etank.isLive = false;
+                        Bobm bobm = new Bobm(etank.getX(), etank.getY());
+                        bobms.add(bobm);
+                        this.trapAlive[j] = false;
+                    }
                 }
             }
         }
@@ -223,7 +227,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
-        g.fillRect(0, 0, 650, 400);
+//        g.fillRect(0, 0, 650, 400);
+        g.drawImage(bg, 0, 0, 650, 400, this);
 
         if (roleTank.isLive) {
             drawTank(roleTank.getX(), roleTank.getY(), g, roleTank.getDirect(), 1);
@@ -275,9 +280,15 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                 this.teamTank.shots.remove(myShot);
             }
         }
-        if (trapAlive) {
-            g.drawImage(trapIcon, 200, 200, 30, 30, this);
+        for (int i = 0; i < trapLocations.length; i++) {
+            if (trapAlive[i]) {
+                int[] trap = trapLocations[i];
+                g.drawImage(trapIcon, trap[0], trap[1], 30, 30, this);
+
+            }
         }
+//        if (trapAlive) {
+//        }
 
 //        {0, 180} -> {125 , 200}
         for (int i = 0; i < 5; i++) {
@@ -291,6 +302,20 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
 //        {175, 250, 200, 375}
         for (int i = 0; i < 4; i++) {
             g.drawImage(rockIcon,   175, 250  + i *25, 25, 25, this);
+        }
+
+//        {435, 20,  480, 150}
+        for (int i = 0; i < 4; i++) {
+            g.drawImage(rockIcon,   450,  50 + i *25, 25, 25, this);
+        }
+
+//        {330, 300,  450, 350}
+        for (int i = 0; i < 4; i++) {
+            g.drawImage(rockIcon, 345 + i * 25, 300, 25, 25, this);
+        }
+//        {450, 150, 575 ,205}
+        for (int i = 0; i < 5; i++) {
+            g.drawImage(rockIcon, 475 + i * 25, 180, 25, 25, this);
         }
 
         for (int i = 0; i < bobms.size(); i++) {
@@ -420,6 +445,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
     public void userDisconnect(int senderId) {
         if ( senderId == this.clientIds[teamTankIdx]) {
             TeamTank teamTank = this.teamTank;
+            if (!teamTank.isLive) return;
             teamTank.isLive = false;
             Bobm bobm = new Bobm(teamTank.getX(), teamTank.getY());
             bobms.add(bobm);
@@ -428,6 +454,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
         for (int i = 0; i < NUMBER_CLIENTS - 2; i++) {
             if (this.enemyIds.get(i) == senderId) {
                 EnemyTank enemyTank = this.enemyTanks.get(i);
+                if (!enemyTank.isLive) return;
                 enemyTank.isLive = false;
                 Bobm bobm = new Bobm(enemyTank.getX(), enemyTank.getY());
                 bobms.add(bobm);
@@ -437,12 +464,15 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
     }
 
     private void checkTrap(Tank tank) {
-        if (!this.trapAlive) return;
-        if (tank.y < trapLocation[3] && tank.y > trapLocation[1] && tank.x + 1 > trapLocation[0] && tank.x < trapLocation[2]) {
-            tank.isLive = false;
-            Bobm bobm = new Bobm(tank.getX(), tank.getY());
-            bobms.add(bobm);
-            this.trapAlive = false;
+        for (int i = 0; i < trapLocations.length; i++) {
+            if (!this.trapAlive[i]) continue;
+            int[] trapLocation = trapLocations[i];
+            if (tank.y < trapLocation[3] && tank.y > trapLocation[1] && tank.x + 1 > trapLocation[0] && tank.x < trapLocation[2]) {
+                tank.isLive = false;
+                Bobm bobm = new Bobm(tank.getX(), tank.getY());
+                bobms.add(bobm);
+                this.trapAlive[i] = false;
+            }
         }
     }
 
@@ -476,15 +506,13 @@ public class MainPanel extends JPanel implements KeyListener, Runnable {
                     break;
 
             }
-//            System.out.printf("%d %d %d %d %d %d\n", yNew, y_1, y_2, xNew, x_1, x_2);
+            System.out.printf("%d %d\n",xNew, yNew);
+            if (yNew < 0 || yNew > 365 || xNew < 0 || xNew > 575) {
+                return false;
+            }
             if (yNew < y_2 && yNew > y_1 && xNew + 10 > x_1 && xNew < x_2) {
                 return false;
             }
-//            if (direction == 0) {
-//                if (y - speed < y_2 && y - speed > y_1 && xNew + 10 > x_1 && xNew < x_2) {
-//                    return false;
-//                }
-//            }
         }
         return true;
     }
